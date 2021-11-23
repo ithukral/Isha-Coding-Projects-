@@ -1,0 +1,170 @@
+---
+title: "STAT 184 Homework Exercises" 
+subtitle: "DataComputing Chapters 11"
+author: "Isha Thukral"
+output: html_notebook
+---
+
+## Assigned Exercises
+
+- DC Chapter 11 Exercises: 11.2, 11.3, 11.5, 11.6
+
+## Front Matter
+
+```{r}
+# clean up workspace environment
+rm(list = ls())
+
+# all packages used for the assignment
+library(mosaic)
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+
+```
+
+
+
+## Chapter 11 Exercises
+
+### Problem 11.2
+
+To join the two tables, there must be a common column between the tables. At first, I thought we could combine the 'country' and 'name' columns, but they have a different number of rows. And finally, if we were to copy and paste the long and lat numbers directly, they wouldn't match the country names. For example, in table one, the countries are Afghanistan, Akrotiri, etc., while table 2 is- Afghanistan, Aland, etc. 
+
+### Problem 11.3
+
+3.
+```{r}
+crowdedZip <-
+  ZipGeography %>%
+  group_by(State,CityName) %>%
+  filter(ZIP > 50000) %>%
+  mutate(ZIP = ifelse(ZIP > 50000, "crowded", ZIP))
+
+ggplot(data = crowdedZip, aes(x = Latitude, y = Longitude)) + geom_point()  + labs(title = "")
+```
+
+4. 
+```{r}
+allzips <-
+  full_join(ZipDemography, ZipGeography, by = c("ZIP"="ZIP")) %>%
+  group_by(State) %>%
+  summarise(State = State, Fractionover65 = X65yearsandover/Totalpopulation) %>%
+  filter(is.na(Fractionover65) == FALSE)
+```
+
+```{r}
+mUSMap(allzips, key = "State", fill = "Fractionover65")
+```
+
+5.
+```{r}
+ZipDemoGeo <-
+  full_join(ZipDemography, ZipGeography, by = c("ZIP"="ZIP")) %>%
+  select(Totalpopulation,X65yearsandover,Latitude,Longitude,ZIP) %>%
+  filter(is.na(X65yearsandover) == FALSE & is.na(Latitude) == FALSE & is.na(Longitude) == FALSE & is.na(ZIP) == FALSE & is.na(Totalpopulation) == FALSE) %>%
+  arrange(desc(Totalpopulation)) %>%
+  head(10000)
+
+
+ggplot(data = ZipDemoGeo, aes(x = Latitude, y = Longitude)) + geom_point()  + aes(colour = X65yearsandover) + theme(legend.position = "right") + labs(title = "")
+```
+
+6.
+```{r}
+LandWater <-
+  ZipGeography %>%
+  mutate(waterlandpercentage = WaterArea/(0.5 * LandArea)) %>%
+  filter(waterlandpercentage>1)
+
+ggplot(data = LandWater, aes(x = Latitude, y = Longitude)) + geom_point()  + aes(colour = Population) + theme(legend.position = "right") + labs(title = "")
+```
+
+### Problem 11.5
+1.
+```{r}
+n_distinct(ZipGeography %>%
+  select(County))    
+```
+There are 1910 different counties.
+
+2. 
+```{r}
+ZipGeography %>%
+  group_by(CityName) %>%
+  filter(is.na(CityName) == FALSE) %>% 
+  summarise(total = n()) %>% 
+  arrange(desc(total))
+```
+City names that are used in most states include Washington, Houston, and New York.
+
+3.
+```{r}
+StatePopulation <- 
+  ZipGeography %>%
+  filter(State != "" &is.na(Population) == FALSE) %>%
+  group_by(State) %>%
+  summarise(total = sum(Population))
+
+CityPopulation <- 
+  ZipGeography %>%
+  filter(State != "" &is.na(Population) == FALSE) %>%
+  group_by(State, CityName) %>%
+  summarise(Population = sum(Population), count = 1)
+
+CityPopulation %>%
+  left_join(StatePopulation,by = c("State" = "State")) %>%
+  mutate(percentPop = Population/total) %>%
+  filter(percentPop > 0.05) %>%
+  group_by(CityName) %>%
+  summarise(n = sum(count)) %>%
+  arrange(desc(n))
+```
+For cities with 5% of population of their state, Kansas City is used the most.
+
+4.
+```{r}
+ZipGeography %>%
+  select(State, Timezone) %>%
+  filter(State != "" &is.na(Timezone) == FALSE & Timezone != " ") %>%
+  distinct(State, Timezone) %>%
+  group_by(State) %>%
+  summarise(total = n()) %>%
+  filter(total > 1)
+```
+The following 14 states have more than one timezone.
+
+5. 
+```{r}
+ZipGeography %>%
+  select(CityName, Timezone) %>%
+  filter(CityName != "" &is.na(Timezone) == FALSE & Timezone != "") %>%
+  distinct(CityName, Timezone) %>%
+  group_by(CityName) %>%
+  summarise(total = n()) %>%
+  arrange(desc(total))
+```
+The following citynames have more than one timezones.
+
+6.
+```{r}
+ZipGeography %>%
+  select(County, Timezone) %>%
+  filter(County != "" &is.na(Timezone) == FALSE & Timezone != "") %>%  
+  distinct(County, Timezone) %>%
+  group_by(County) %>%
+  summarise(total = n()) %>%
+  arrange(desc(total))
+```
+The following counties have more than one timezone. 
+
+### Problem 11.6
+
+1. By using a MirgationFlows we can create a data frame that uses rename() function with arguments such as orgincode = countryB (or something similar) to make a table with same values as MigrationFlows but with different variable names.
+
+2. For the join countryB is matched to origincode.
+
+3. InfantA is being matched to countryA variable in MigrationFlows to iso_a3 to HealthIndicators get the infant mortality rate for countryA. 
+
+4. InfantB is being matched to countryB variable in MigrationFlows to iso_a3 to HealthIndicators get the infant mortality rate for countryB. 

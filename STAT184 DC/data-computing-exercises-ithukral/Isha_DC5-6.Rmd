@@ -1,0 +1,114 @@
+---
+title: "STAT 184 Homework Exercises" 
+subtitle: "DataComputing Chapters 5 & 6"
+author: "Isha Thukral"
+output: html_notebook
+---
+
+## Assigned Exercises
+
+- DC Chapter 5 Exercises: 5.1, 5.2, 5.3  
+- DC Chapter 6 Exercises: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 6.10
+
+## Front Matter
+
+```{r}
+# clean up workspace environment
+rm(list = ls())
+
+# all packages used for the assignment
+library(mosaic)
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+
+```
+
+
+
+## Chapter 5 Exercises
+
+### Problem 5.1
+```{r}
+ggplot(data = CPS85, aes(x = sex, y = wage)) + geom_boxplot()  + aes(colour = married) + facet_wrap(~race, ncol = 4) + theme(legend.position = "right") + labs(title = "")
+```
+ 
+
+### Problem 5.2
+```{r}
+ggplot(NCHS) +
+  aes(x = bmi, colour = sex) +
+  geom_density(adjust = 1L) +
+  scale_color_hue(direction = 1) + 
+  theme_minimal() +
+  facet_wrap(vars(pregnant))
+```
+
+
+### Problem 5.3 
+```{r}
+ggplot(data = CPS85, aes(x = exper, y = wage)) + geom_point()  + aes(colour = married) + facet_wrap(~sector, ncol = 4) + theme(legend.position = "right") + labs(title = "")
+```
+
+
+## Chapter 6 Exercises
+
+### Problem 6.1
+1. 1433B, 1433E, 1433G, 1433Z
+2. They are the same frames for each facet as spacing and variables are the same.
+3. Line- mean of the data
+horizontal line- the range
+Star- the mode
+### Problem 6.2
+1. y-axis: Log Enzymes concentration numerical -3 to 5. CcpN, Uptake, Others represents the target attribute. zero and greater than zero (positive) is the Flux attribute which is represented in shaded or non-shaded. MaeN, PtsG, DctP, etc. is the x-axis. Molecule such as Glucose, Fructose, Gluconate represents the color key in the graph. 
+
+2. Within the graph there are two graphical attributes for the dots. First is color which is the molecule attribute for the key. Second is flux variable which represents on whether the dot is full or not. 
+
+3. Log Enyzme and Gene
+
+4. Gene and Target
+
+### Problem 6.3
+1.  Vertical Line first glyph, and is colored red and blue which is guided by the polarity. Red is minus polarity and blue is plus polarity. 
+
+2. Log2 ratio low vs high cell density. Vertical variable is cell density (center, low, high) and horizontal is protein, polarity, and signif.
+
+3. Yes it determines if the polarity is minus or plus.
+
+4. The tick marks on the y-axis that shows the log2 ratio low vs high density.
+
+### Problem 6.4
+1. The diagram shows where the bus schedule is and is colored to represent the different routes and times. And provides the date to show when these routes take place.
+
+2. The horizontal line/bar glyph represents different times route occurs. The symbols such as bus, car, and train are different gyphs represents there own unique vehicle. And the vertical lines is the time zones (30 min).
+
+3. The colors in the diagram showcase different types of bus, trains, and the lenght of travel. The symbol shapes identify the train and buses. the bar is the duration of the trip provided with a numerical value to make it easy to read.
+
+4. The upper x-axis is the time zones, the bus blue undelined icon, and the time plus date and the beginning. 
+
+### Problem 6.5
+1. B
+
+### Problem 6.6
+1. D
+
+### Problem 6.7
+1. E
+
+### Problem 6.8
+1. A & E
+
+### Problem 6.9
+```{r}
+ggplot(data = Small, aes(x = bmi, y = weight)) + geom_point()  + aes(colour = smoker) + theme(legend.position = "right") + labs(title = "") 
+```
+The x-axis represent the bmi while the y-axis is the weight. We see a correlation between having higher weight and higher bmi. Another variable that comes into play here smoker and the graphical attribute that represents that is the different colors as provided by the key. There are no other graphical attributes in play and we can see that there isn't a considerable difference in weight/ bmi for those that smoke and those that don't. 
+
+### Problem 6.10
+
+a. The black layers represent the overlap between the contributions to the virus/ bacteria, Archaea, or Eukrayotes. Wherease the following contribution which are labeled by color are the reason for the overlap. For instance the more the overlap that higher the inner black line goes.
+
+b. There is no statistical accuracy that define the meaning of space in each frame. We can only visually see the greater overlaps being shown as bigger in the diagram.
+
+

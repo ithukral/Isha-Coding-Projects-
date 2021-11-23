@@ -1,0 +1,200 @@
+---
+title: "Activity: Statistics of Gene Expression"
+author: "Isha Thukral"
+date: "Nov 9, 2021"
+output: html_notebook
+---
+
+```{r}
+# Load `tidyverse` and `DataComputing` packages
+library(tidyverse)
+library(mosaic)
+library(dcData)
+library(mosaicData)
+library(esquisse)
+```
+
+```{r}
+# Load the 'NCI60` data set into your RStudio environment from the `DataComputing` package
+
+data("NCI60")
+data("NCI60cells")
+```
+
+```{r}
+Narrow <-
+  NCI60 %>%
+  tidyr::pivot_longer(cols = -Probe, names_to = "cellLine", values_to = "expression")
+
+CellTypes <-
+  NCI60cells %>%
+  select(cellLine, tissue) %>%
+  mutate(cellLine = gsub(pattern = "\\:", replacement = ".", x = as.character(cellLine)))
+
+Narrow <- 
+  Narrow %>%
+  inner_join(CellTypes)
+```
+
+```{r}
+Probe_TOP3A <-
+  Narrow %>%
+  filter(Probe == "TOP3A")
+```
+
+```{r}
+SummaryStats <-
+  Probe_TOP3A %>%
+  group_by(tissue) %>%
+  summarise(mn_expr = exp(mean(expression, na.rm = TRUE)))
+```
+
+```{r}
+SummaryStats %>% 
+  ggplot(aes(x = tissue, y = mn_expr)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+```{r}
+Probe_TOP3A %>% 
+ggplot(aes(x = tissue, y = exp(expression))) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+From Figure 18.1, the geom_point makes it difficult to see where the mean of each tissue lies. The points show the outliers, and a geom_bar would better compare the tissue in this data frame. If we implement a bar graph, we can exclude outliers from our judgment.
+```{r}
+    SummaryStats <-  
+      SummaryStats %>%  
+      mutate(tissue = reorder(tissue, mn_expr))
+```
+
+```{r}
+SummaryStats <-
+  Probe_TOP3A %>%
+  group_by(tissue) %>%
+  summarise(mn_expr = mean(expression,  na.rm = TRUE),
+            se = sd(expression, na.rm = TRUE) / sqrt(n()))
+```
+
+```{r}
+SummaryStats %>% 
+  ggplot(aes(x = tissue, y = exp(mn_expr))) +
+  geom_bar(stat = "identity", fill = "gray", color = NA) +
+  geom_point(data = Probe_TOP3A, aes(x = tissue, y = exp(expression))) + 
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+```{r}
+SummaryStats <- 
+  SummaryStats %>%
+  mutate(top = mn_expr + 2 * se,
+         bottom = mn_expr - 2 * se) 
+SummaryStats %>%
+  ggplot(aes(x = tissue, y = exp(mn_expr))) +
+  geom_bar(stat = "identity", alpha = 0.2) +
+  geom_errorbar(aes(x = tissue, 
+                    ymax = exp(top), 
+                    ymin = exp(bottom)), width = 0.5) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+```{r}
+SummaryStats <- 
+  SummaryStats %>%
+  mutate(top = mn_expr + 2 * se,
+         bottom = mn_expr - 2 * se) 
+SummaryStats %>%
+  ggplot(aes(x = tissue, y = exp(mn_expr))) +
+  geom_point(data = Probe_TOP3A, aes(x = tissue, y = exp(expression))) +
+  geom_errorbar(aes(x = tissue, 
+                    ymax = exp(top), 
+                    ymin = exp(bottom)), width = 0.5) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+```{r}
+# customize a user-defined function called `r2`
+r2 <- function(data) {
+  mosaic::rsquared(lm(data$expression ~ data$tissue))
+}
+```
+
+```{r}
+ProbeR2 <- 
+  Narrow %>% 
+  group_by(Probe) %>%
+  dplyr::do(probe_rsq = r2(.)) %>%
+  mutate(r2 = unlist(probe_rsq))
+```
+
+```{r}
+Actual <-
+  ProbeR2 %>%
+  arrange(desc(r2)) %>%
+  head(30) 
+```
+
+```{r}
+Actual %>%
+  ggplot(aes(x = reorder(Probe, desc(r2)), y = r2)) +
+  geom_point() + 
+  xlab("Probe") + 
+  ylab("R-squared") + 
+  ggtitle("Probes with large R-squared for expression level explained by tissue type") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+New_Probe<-
+  Narrow %>%
+  filter(Probe=="MYB")
+
+SummaryStats <-
+  New_Probe %>%
+  group_by(tissue) %>%
+  summarise(mn_expr = mean(expression,  na.rm = TRUE),
+            se = sd(expression, na.rm = TRUE) / sqrt(n())) %>%
+  mutate(top = mn_expr + 2 * se,
+         bottom = mn_expr - 2 * se) 
+
+SummaryStats %>%
+  ggplot(aes(x = tissue, y = exp(mn_expr))) +
+  geom_point(data = New_Probe, aes(x=tissue, y=exp(expression))) +
+  geom_errorbar(aes(x = tissue, 
+                    ymax = exp(top), 
+                    ymin = exp(bottom)), width=0.5) +
+  theme(axis.text.x = element_text(angle = 30, hjust=1)) 
+```
+After testing out a couple of the probes I have observed that probes with high R^2 probe have one point that doesn't show 0 and makes the R^2 larger. Wherease points with lower R^2 have more points that aren't 0 such as MYB.
+
+```{r}
+NullR2 <-
+  Narrow %>%
+  group_by(Probe) %>%
+  mutate(expression = mosaic::shuffle(expression)) %>%
+  group_by(Probe) %>%
+  do(r2 = r2(.)) %>%
+  mutate(r2 = unlist(r2))
+```
+```{r}
+ProbeR2 %>%
+  ggplot(aes(x = r2)) + 
+  geom_density(fill = "gray30", color = NA) +
+  geom_density(data = NullR2, aes(x = r2), 
+               fill = "gray80", alpha = .75, color = NA)
+```
+```{r}
+Null <-
+  NullR2 %>% 
+  arrange(desc(r2)) %>%
+  head(30) 
+
+# append the 30 highest `Null` values to the `Actual` data
+Actual$null <- Null$r2
+
+Actual %>%
+  ggplot(aes(x = reorder(Probe, desc(r2)), y = r2)) +
+  geom_point() + 
+  geom_point(aes(y = null), color = "gray50") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+

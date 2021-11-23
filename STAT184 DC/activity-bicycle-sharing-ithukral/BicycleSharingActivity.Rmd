@@ -1,0 +1,281 @@
+---
+title: "Bicycle Sharing"
+author: "Isha Thukral"
+date: "Oct 19, 2021"    
+output: 
+    html_notebook:
+    fig_height: 6       
+    fig_width: 10
+---
+
+
+# Set Up
+
+### Clean up environment and load packages
+```{r}
+# clean up the RStudio environment 
+rm(list = ls())
+
+# load all packages here: `mosaic`, `tidyverse`, `lubridate`, and all others used
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+library(lubridate)
+library(ggplot2)
+
+```
+
+### Data Intake
+
+The code chunk below loads the data for you, but you should study each line to understand what it's doing.
+
+```{r}
+ # Tip: Scroll right if browser settings cut off the URL
+    station_url <- "https://mdbeckman.github.io/dcSupplement/data/DC-Stations.csv"
+    Stations <- readr::read_csv(station_url)
+    
+ # Tip: Scroll right if browser settings cut off the URL
+    trip_url <- "https://mdbeckman.github.io/dcSupplement/data/Trips-History-Data-2014-Q4-Small.rds"
+    Trips <- readRDS(gzcon(url(trip_url)))
+```
+
+
+
+### Always inspect the data tables when you load them
+
+```{r}
+summary(Stations)
+```
+
+```{r}
+head(Stations)
+```
+
+
+```{r}
+summary(Trips)
+```
+
+
+```{r}
+head(Trips)
+```
+
+
+
+### Plot check-out times. (reproduce Figure 17.1: Use of shared bicycles over the three months in Q4.)
+
+```{r}
+Trips %>%
+  ggplot(aes(x = sdate)) +
+  geom_density(fill = "gray", color = NA)
+```
+
+
+
+
+# Section: How Long? 
+
+Make box & whisker plot showing the distribution of rental duration by client type.  As instructed in the text, make sure you either configure your scale or use a filter to suppress outliers from dictating the axis range.
+
+```{r}
+Trips <-
+  Trips %>%
+  mutate(duration_mintutes  = as.numeric(edate - sdate)/60)    
+```
+
+```{r}
+Trips %>%
+  ggplot(aes(x = client, y = duration_mintutes)) +
+  geom_boxplot() +
+  ylim(0, 60)
+```
+
+There are more number of registrered than casual clients.The box-scatter plot demonstrates that casual client have more duration in the range of 50-60 minutes than registered clients that took from all ranges 27-60. 
+
+# Section: When are bikes used?
+
+Note: You'll use several functions that begin with `lubridate::` this means that those functions have come from the `lubridate` R package, which makes it easy to work with dates in R.  The activity template instructed you to load this package already, but you should use Google or the RStudio help to get a sense of the kind of things this package is designed to do.
+
+```{r}
+Trips <-
+  Trips %>%
+  mutate(dayofYear = lubridate::yday(sdate))
+```
+
+```{r}
+Trips <-
+  Trips %>%
+  mutate(dayofweek = lubridate::wday(sdate))
+```
+
+```{r}
+Trips <-
+  Trips %>%
+  mutate(hourofday = lubridate::hour(sdate))
+```
+
+```{r}
+Trips <-
+  Trips %>%
+  mutate(mininhour = lubridate::minute(sdate))
+```
+
+##### Day of the year (1 to 365)
+
+```{r}
+Trips %>%
+  ggplot(aes(x = dayofYear)) +
+  geom_density(fill = "gray", color = NA)
+```
+Around day 275 there are the most checked out bikes. Closer to winter there are less as the weather gets colder.
+
+##### Day of the week (Sunday to Saturday)
+
+```{r}
+Trips %>%
+  ggplot(aes(x = dayofweek)) +
+  geom_density(fill = "gray", color = NA)
+```
+The graph shows density of days of the week, all days have similiar frequency of users. So the number of bikes checked out are pretty much the same everyday.
+
+##### Hour of the day (0 to 24)
+
+```{r}
+Trips %>%
+  ggplot(aes(x = hourofday)) +
+  geom_density(fill = "gray", color = NA)
+```
+The graph shows density based upon hours of the day, where 5 till 17 in a 24-hour has the most checkout and most density/frequency.
+
+##### Minute in the hour (0 to 60)
+
+```{r}
+Trips %>%
+  ggplot(aes(x = mininhour)) +
+  geom_density(fill = "gray", color = NA)
+```
+
+The graph shows density based upon minutes in an hour, where 10 - 50 high and consisten number of checkout and same with density/frequency.
+
+### Group the bike rentals by hour, weekday, & client type
+
+```{r}
+Trips %>%
+  group_by(client, dayofweek, hourofday) %>%
+  summarise(count = n()) %>%
+  ggplot(aes(x = hourofday, y = count)) +
+  geom_line(aes(group = dayofweek, color = as.character(dayofweek))) +
+  facet_wrap(~client)
+
+```
+There are more  registered clients than occasional clients. And most casual customers take advantage of the  afternoon  to view the bikes, usually the first and seventh days of the week. Whereas the majority of registered clients show up in the morning or  in the evening, and more on weekdays.
+
+### Construct a similar plot using density rather than frequency
+
+```{r}
+Trips %>%
+  group_by(client, dayofweek, hourofday) %>%
+  summarise(count = n()) %>%     
+  ggplot(aes(x = hourofday)) + 
+  geom_density(aes(group = dayofweek, color=as.factor(dayofweek))) + 
+  facet_wrap(~client) 
+```
+There are more number of casual during the evening. The day of the week is consistent in all of them.
+
+# Section: How Far?
+
+We want to calculate the distance between stations using the `haversine()` function.  The `source()` function actually runs an R script found at some URL.  Use a web browser to visit this URL and read about the function (it's only a few lines).
+
+```{r}
+source("https://mdbeckman.github.io/dcSupplement/R/haversine.R") 
+
+Simple <-
+  Stations %>%
+  select(name, lat, long) %>%
+  rename(sstation = name)
+
+Simple2 <-
+  Simple %>%
+  rename(estation = sstation, lat2 = lat, long2 = long)
+
+head(Simple)
+```
+
+```{r}
+head(Simple2)
+```
+```{r}
+StationPairs <- merge(Simple, Simple2, by = NULL)
+head(StationPairs)
+```
+
+```{r}
+PairDistances <-
+  StationPairs %>%
+  mutate(distance = haversine(lat, long, lat2, long2)) %>%
+  select(sstation, estation, distance)
+```
+
+```{r}
+Merged_Trip_Distance <-
+  PairDistances %>%
+  inner_join(Trips)
+```
+
+```{r}
+PairDistances %>%
+  ggplot(aes(x = distance))+
+  geom_density(aes(color = 'pink',fill = 'pink', alpha = '.7'))+
+  geom_density(data = Merged_Trip_Distance)+
+  xlim(0,15)+
+  xlab('Trip Distance (km)')+
+  theme_bw()+
+  theme(legend.position = "none")
+```
+As the trip distance increases, the density gradually decreases.
+
+# Section: Mapping the Stations
+
+```{r}
+library(leaflet)
+stationMap <-
+  leaflet(Stations) %>%           # like ggplot()
+  addTiles() %>%                  # add the map
+  addCircleMarkers(radius = 2, color = "red") %>%
+  setView(-77.04, 38.9, zoom = 12)
+```
+
+```{r}
+stationMap
+```
+
+```{r}
+median(Trips$distance)/3
+```
+Red circles are where bikes have been taken.
+
+# Section: Long-distance stations (Extra Credit)
+
+```{r}
+library(leaflet)
+stationMap <- 
+  leaflet(Stations) %>%
+  addTiles() %>%
+  addCircles(radius = 487, color = "blue", opacity = 0.0001)%>%
+  setView(-77.04, 38.9, zoom = 12)
+```
+
+```{r}
+stationMap
+```
+
+```{r}
+median(Trips$distance)/3
+```
+The maps shows different stations as circles with median of distance and stations.      
+
+
+
+

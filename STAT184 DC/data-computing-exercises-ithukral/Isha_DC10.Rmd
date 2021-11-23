@@ -1,0 +1,115 @@
+---
+title: "STAT 184 Homework Exercises" 
+subtitle: "DataComputing Chapters 10"
+author: "Isha Thukral"
+output: html_notebook
+---
+
+## Assigned Exercises
+
+- DC Chapter 10 Exercises: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7 
+
+## Front Matter
+
+```{r}
+# clean up workspace environment
+rm(list = ls())
+
+# all packages used for the assignment
+library(mosaic)
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+
+```
+
+
+
+## Chapter 10 Exercises
+
+### Problem 10.1
+
+1. str(): summary function
+2. group_by():Data verbs
+3. rank(): transformation  
+4. mean():reduction   
+5. filter(): Data Verb 
+6. summary():summary function 
+7. summarise(): data verb 
+8. glimpse():summary function  
+
+### Problem 10.2
+1. mutate()
+2. arrange(desc())
+3. filter() specified for criteria 
+4. select() with column A and X specified 
+5. group_by(), summarise(max())
+
+### Problem 10.3
+1. summarise(count=n())
+2. names()
+3. help("codebook")
+4. library(x)
+5. group_by() 
+
+### Problem 10.4
+1. Data verb: arrange(count)
+2. Data verb: filter(sex != "M")
+3. Data verb: filter(sex != "F")
+4. Data verb: summarise(total = sum(count))
+5. Data verb: select(name, count) 
+
+### Problem 10.5
+
+1. First filter() rows to find values that have first and second choice the same. Than use the n() to display the total number of cases.
+```{r}
+Minneapolis2013%>%
+  filter(First == Second)%>%
+  summarise(count = n())
+```
+2. Similiar to question one we would use the implement function to find cases where first and second are the same. Then group_by (for columns) to get the number of rows for a specific name. Next using n() shows case numbers for first and second. Finally arrange in descending order and retrieve top 3 by using head. 
+```{r}
+Minneapolis2013%>%
+  filter(First == Second)%>%
+  group_by(First, Second)%>%
+  summarise(choices = n())%>%
+  arrange(desc(choices))%>%
+  head(3) 
+```
+3. Using filter function to gather values with "OLE SAVIOR" case. Then group_by second choice column to get total of each name and display n(). Finally put in descending order and use head to get top 3. 
+```{r}
+Minneapolis2013%>%
+  filter(First == "OLE SAVIOR")%>%
+  group_by(Second)%>%
+  summarise(choices = n())%>%
+  arrange(desc(choices))%>%
+  head(3)
+```
+
+### Problem 10.6
+1. 
+```{r}
+diamonds%>%
+  group_by(color)%>%
+  summarise(average = sum(mean(carat)))%>%
+  arrange(desc(average))
+```
+2. 
+```{r}
+diamonds%>%
+  group_by(clarity)%>%
+  summarise(average = sum(mean(table/carat)))%>%
+  arrange(desc(average)) 
+```
+
+### Problem 10.7
+```{r}
+Minneapolis2013%>%
+  group_by(First)%>%
+  summarise(count = n())%>%
+  mutate(First = ifelse(count < 5000, "minor", First))
+  
+```
+
+

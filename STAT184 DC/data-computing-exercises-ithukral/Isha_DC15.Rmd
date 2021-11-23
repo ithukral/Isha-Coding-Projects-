@@ -1,0 +1,71 @@
+---
+title: "STAT 184 Homework Exercises" 
+subtitle: "DataComputing Chapters 15"
+author: "Isha Thukral"
+output: html_notebook
+---
+
+## Assigned Exercises
+ 
+- DC Chapter 15 Exercises: 15.1, 15.2, 15.3, 15.4, 15.5
+
+## Front Matter
+
+```{r}
+# clean up workspace environment
+rm(list = ls())
+
+# all packages used for the assignment
+library(mosaic)
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+library(lubridate)
+```
+
+## Chapter 15 Exercises
+
+### Problem 15.1
+```{r}
+mosaicData::CPS85 %>%
+  ggplot(aes(x=sex,y=wage)) +
+  geom_boxplot(aes(fill=sex))
+```
+
+
+### Problem 15.2
+1.65 meters
+
+2.female = 1.62 meters, male = 1.77 meters
+
+3.BMI for 40 y/o = 26, BMI for 40 y/o = 28
+
+### Problem 15.3
+```{r}
+mosaicData::CPS85 %>%
+  ggplot(aes(x=educ, y=wage, color = sex)) +
+  geom_point() + stat_smooth(method = "lm") +
+  ylim(0,15)
+```
+### Problem 15.4
+```{r}
+mosaicData::Galton %>%
+  ggplot(aes(x=height,y=mother)) +
+  stat_density2d() +
+  facet_grid(~sex)+
+  theme_bw()
+```
+### Problem 15.5
+1. The following data doesn't show the ZIP codes with high elderly population tend to have high child populations, as the scattered data where the increase in fraction of 5 year olds and increase in fraction of 65 and older can be seen simultaneously.
+
+2. Looking at the data it seems to be consistent as the confidence bands have a broad variety of data points and possible a true relationship. Plus as it could not be a no-relationship. The line are pretty much parallel to x-axis and if more points gathered can lead to non-level line.
+
+### You decide to get more data: study 80 ZIP codes. Here’s the result.
+
+1. The horizontal line is not consistent with the data, as its in downward trend.
+
+2. For 80 zipcodes to 20 zipcodes the ratio would be 1:2.    
+
+3. Yes it is consistent and seems right because (1/√20) * (1/√80) equals 2. And the answer is same for the same from the previous question. 
+

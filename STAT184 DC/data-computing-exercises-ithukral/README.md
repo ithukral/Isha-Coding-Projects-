@@ -1,0 +1,24 @@
+## STAT 184 Instructions for DataComputing Homework Exercises
+
+- **Each week, you should create a new .Rmd AND R Notebook in this repository for your Homework Exercises (ALL homework documents in this repository).** File naming convention should include Your Name and the chapter number(s) from Data Computing (DC).  For example, 
+    - `YourName_DC5-6.Rmd`
+    - `YourName_DC5-6.nb.html`
+    - `YourName_DC7.Rmd`
+    - `YourName_DC7.nb.html`
+    - ...and so on for each weekly assignment (don't delete or overwrite old assignments)
+- A .Rmd template document is available with the required elements
+    - title (same each time)
+    - subtitle (update to reflect chapters assigned)
+    - your name
+    - assigned exercises (update each time)
+    - front matter (clean workspace & load all packages in use)
+    - 2nd level heading for each chapter
+    - 3rd level heading for each assigned problem
+- Each assigned problem should be well-formatted with appropriate narrative and code chunks.
+    - you do NOT need to reproduce the entire question accompanying, but it MUST be clear from your solution which question you are answering
+    - if the book lists prompts in bullet points, than your solution should match
+    - if the book uses a numbered list (1., 2., 3., etc) than your solution should match
+    - if the book uses a lettered list (a., b., c., etc) than your solution should match
+- **Submit** your complete R Notebook (check for "code button" in top right) to **Canvas** to be graded each week
+    - Your work in the GitHub Repo will be monitored and graded separately (See Canvas)
+    - You will not earn credit unless your work has been submitted to Canvas (unless instructed otherwise)

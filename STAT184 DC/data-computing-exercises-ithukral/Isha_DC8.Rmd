@@ -1,0 +1,121 @@
+---
+title: "STAT 184 Homework Exercises" 
+subtitle: "DataComputing Chapters 8"
+author: "Isha Thukral"
+output: html_notebook
+---
+
+## Assigned Exercises
+
+- DC Chapter 8 Exercises: 8.1,8.2,8.3
+
+## Front Matter
+
+```{r}
+# clean up workspace environment
+rm(list = ls())
+
+# all packages used for the assignment
+library(mosaic)
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+```
+
+
+
+## Chapter 8 Exercises
+
+### Problem 8.1
+
+1. Add a layer of glyphs.
+
+2. Add a layer of glyphs.
+
+3.Construct a graphics frame.
+
+4.Change the scale for the frame.
+
+5.Set an axis label.
+
+6.Divide the frame into facets.
+
+7. Add a layer of glyphs.
+
+8. Set an axis label.
+
+9. Divide the frame into facets.
+
+
+### Problem 8.2
+A.
+```{r}
+CPS85 %>%
+  ggplot(aes(x= wage, color = sex, fill = sex)) +
+  geom_density(alpha = 0.4) +
+  facet_grid(~married) +
+  xlim(0,30) +
+  theme_bw()
+```
+B.
+```{r}
+CPS85 %>%
+  ggplot(aes(x= age, y = wage, color = sex)) +
+  facet_grid(married ~ .) +
+  geom_smooth() +
+  ylim(0, 15) +
+  theme_bw()
+```
+C.
+```{r}
+CPS85 %>%
+  ggplot(aes(x= age, y = wage, color = sex)) +
+  facet_wrap(~sector) +
+  geom_smooth() +
+  ylim(0, 25) +
+  theme_bw()
+```
+
+
+### Problem 8.3
+
+A.
+```{r}
+CPS85 %>%
+  ggplot(aes(x = age, y = wage)) + 
+  geom_point()  + 
+  labs(title = "")
+```
+
+B.
+```{r}
+CPS85 %>%
+  ggplot(aes(x = age, y = wage)) + 
+  geom_point(aes(shape = sex))  + 
+  labs(title = "") +
+  theme(legend.position="top")
+```
+
+
+C.
+```{r}
+CPS85 %>%
+  ggplot(aes(x = age, y = wage)) + 
+  geom_point(aes(shape = sex))  + 
+  facet_grid(married ~.) +
+  labs(title = "") +
+  theme(legend.position="top")
+```
+
+
+D.
+```{r}
+CPS85 %>%
+  ggplot(aes(x = age, y = wage)) + 
+  geom_point(aes(shape = married))  + 
+  labs(title = "") +
+  ylim(0, 30) +
+  theme(legend.position="top")
+```
+

@@ -1,0 +1,86 @@
+---
+title: "Final Project: Data Check"
+output: html_notebook
+---
+
+```{r}
+# clean up the RStudio environment 
+rm(list = ls())
+
+# load all packages here: `mosaic`, `tidyverse`, `lubridate`, and all others used
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+library(lubridate)
+library(ggplot2)
+library(readr)     
+```
+
+```{r}
+ # Tip: Scroll right if browser settings cut off the URL
+cities_internet_prices_historical_24_10_2021 <- read_csv("cities_internet_prices_historical.24-10-2021.csv")
+    
+ # Tip: Scroll right if browser settings cut off the URL
+GDP <- read_csv("GDP.csv")
+```
+
+```{r}
+summary(cities_internet_prices_historical_24_10_2021)
+```
+
+```{r}
+glimpse(cities_internet_prices_historical_24_10_2021)
+```
+
+```{r}
+head(cities_internet_prices_historical_24_10_2021)
+```
+
+
+```{r}
+tail(cities_internet_prices_historical_24_10_2021)
+```
+```{r}
+summary(GDP)
+```
+
+
+```{r}
+glimpse(GDP)
+```
+
+
+```{r}
+head(GDP)
+```
+```{r}
+tail(GDP)
+```
+### Research Question    
+
+We are going to use two datasets: internet price and GDP. We are going to investigate the relationship between internet price and GDP by joining two datasets. In hypothesis, we expect that countries with higher GDP have higher price of internet.
+
+### Where the data from  
+
+**WHERE:** We found our two datasets from [kaggle](https://www.kaggle.com/datasets).
+
+[World cities average inter prices. 2010-2020](https://www.kaggle.com/cityapiio/world-cities-average-internet-prices-2010-2020).
+
+[GDP per capita all countries](https://www.kaggle.com/nitishabharathi/gdp-per-capita-all-countries).
+
+**HOW:** Since all of our group members had interest in joining datasets and in economics, we decided to look for GDP data with country and year variable and look for any data that has country and year variables in it.
+
+
+### Examine the data source
+
+Report what you know (or don't know) about who/what/when/where/why/how the data were originally collected (note: this is NOT about how you found it, etc)
+
+We know that GDP dataset is from World Databank. It has country names and country codes, with the GDP for 1990-2019 years. We need to find correlation between GDP and internet prices and explore other outside factor such as countries that have high tech gadgets and accesibility.
+
+choose a few (3-4) key variables to describe (variable types, coding, missingness, summary statistics/plots)
+
+Heejun's Suggestion: We are going to use mainly 4 variables: GDP per countries, internet price per countries, year, and country names. Since internet price is not for country but for cities, we are going to use coding to find average internet price for each countries. Variable types are basically numbers, but there are some "null" values that we are going to remove by coding. For summary statistics/plots, we are going to calculate R squared score to see the strength of the relationship between two datasets and are going to visualize a plot including data points, regression line, or r^2 value by using ggplot() or equisse().    
+The average world cities internet price dataset for 68 countries is from City API project data. This dataset has Country name, region of country and city name with prices for 2010 to 2019 years.
+
+

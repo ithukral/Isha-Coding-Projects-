@@ -1,0 +1,143 @@
+---
+title: "Project: Street or Road?"
+output: html_notebook
+---
+
+```{r}
+library(mosaic)
+library(rvest)
+library(tidyverse)
+library(lubridate)
+```
+
+```{r}
+download.file(url="https://mdbeckman.github.io/dcSupplement/data/street-addresses.csv", 
+              destfile = "voteraddresses.csv")
+voteraddresses <- read.csv("voteraddresses.csv")
+
+download.file(url="https://mdbeckman.github.io/dcSupplement/data/CMS_ProvidersSimple.rds",
+              destfile = "provideraddresses.rds")
+provideraddresses <- readRDS("provideraddresses.rds")
+```
+```{r}
+nrow(voteraddresses)
+nrow(provideraddresses)
+```
+
+```{r}
+Sample <- 
+  voteraddresses %>%
+  sample_n(size = 50)
+
+Matches <- 
+  Sample %>%
+  filter(grepl(pattern = "PO", address))
+
+Dont <- 
+  Sample %>%
+  filter( !grepl(pattern = "PO", address))
+
+pattern <- "BOX\\s+(\\d+)"
+
+Matches <- 
+  Sample %>% 
+  filter(grepl(pattern, address))
+
+Dont <-
+  Sample %>%
+  filter( !grepl(pattern, address))
+
+BoxNumbers <- 
+  Sample %>%
+  filter(grepl(pattern, address)) %>%
+  tidyr::extract(address, into = "boxnum", regex = pattern)
+```
+
+```{r}
+Combined <-
+bind_rows(voteraddresses,provideraddresses)
+```
+
+```{r}
+pattern <- "(ST|RD|ROAD|CIRCLE|WAY|TRAIL|DRIVE|DR|LANE|LN|CT|COURT|AVE|AVENUE|PL)" #Parenthesis want to extract and the | is for or. And the pattern are the cases we want to extract in this case the the following street identifier listed above. 
+LeftOvers <- # new data frame we are saving in 
+  Combined %>% # the combined voteraddresses and provideraddresses we are chaining 
+  filter( !grepl(pattern, address), # filter the street identifiers we have already listed previously in pattern
+          !grepl("\\sAPT|UNIT\\s[\\d]+$", address), # filter out the address address ending with apartment number
+          !grepl(" BOX ", address) # filter out address ending in box
+          ) 
+LeftOvers
+```
+```{r}
+pattern_desc <- 
+  Combined%>%
+  filter(grepl(pattern, address)) %>%
+  tidyr::extract(address, into = "new_pattern_desc", regex = pattern)
+pattern_desc
+```
+
+```{r}
+new_data <-
+  pattern_desc %>%
+  group_by(new_pattern_desc) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+new_data
+```
+```{r}
+voter_desc <- 
+  voteraddresses%>%
+  filter(grepl(pattern, address)) %>%
+  tidyr::extract(address, into = "new_voter_desc", regex = pattern)
+voter_desc
+```
+
+```{r}
+new_voterdata <-
+  voter_desc %>%
+  group_by(new_voter_desc) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+new_voterdata
+```
+```{r}
+new_voterdata %>%
+  ggplot(aes(x= new_voter_desc, y = count))+
+  geom_bar(stat = 'identity')+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+provider_desc <- 
+  provideraddresses%>%
+  filter(grepl(pattern, address)) %>%
+  tidyr::extract(address, into = "new_provider_desc", regex = pattern)
+provider_desc
+```
+```{r}
+new_providerdata <-
+  provider_desc %>%
+  group_by(new_provider_desc) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+new_providerdata
+```
+```{r}
+new_providerdata %>%
+  ggplot(aes(x= new_provider_desc, y = count))+
+  geom_bar(stat = 'identity')+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+Between both data frames, ST is the most popular street name ending. Similarly, the trail is the least popular between both of the bar graphs. It is apparent that providers have more data than voters from the y-axis scale. Another difference is that ST seems the superior choice for the provider address data, whereas there is a decent mix of street name endings for the voter address graph.
+
+```{r}
+new_data %>%
+  ggplot(aes(x= new_pattern_desc, y = count))+
+  geom_bar(stat = 'identity')+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+Added combined graph to get a better look into the average between both data sets     
+
+
+
+
+

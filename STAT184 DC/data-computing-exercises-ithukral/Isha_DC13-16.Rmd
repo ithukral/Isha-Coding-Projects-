@@ -1,0 +1,147 @@
+---
+title: "STAT 184 Homework Exercises" 
+subtitle: "DataComputing Chapters 13 and 16"
+author: "Isha Thukral"
+output: html_notebook
+---
+
+## Assigned Exercises
+
+- DC Chapter 13 and 16 Exercises: 13.1, 13.2, 13.3, 16.1, 16.2
+
+## Front Matter
+
+```{r}
+# clean up workspace environment
+rm(list = ls())
+
+# all packages used for the assignment
+library(mosaic)
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+library(lubridate)
+```
+
+## Chapter 13 Exercises
+
+### Problem 13.1
+```{r}
+BabyNames %>%
+  group_by(sex, name) %>%
+  summarise(totalcount = sum(count)) %>%
+  mutate(overallRank = rank(desc(totalcount))) %>%
+  arrange(sex, overallRank) %>%
+  filter(overallRank <= 5)
+```
+
+
+### Problem 13.2
+1.
+```{r}
+PopBabyNames <-
+  BabyNames %>%
+  group_by(year,name) %>%
+  summarise(totalcount = sum(count)) %>%
+  mutate(ranking = ifelse(rank(desc(totalcount))<=100, 'Top_100', 'Below')) %>%
+  group_by(year,ranking) %>%
+  summarise(total = sum(totalcount)) %>%
+  arrange(desc(year))
+```
+```{r}
+PopBabyNames
+```
+
+
+2. 
+```{r}
+FractionNames <-
+  PopBabyNames %>%
+  pivot_wider(names_from = ranking, values_from = total) %>%
+  mutate(fraction_name = Top_100/(Top_100 + Below))
+  
+FractionNames
+```
+3. 
+```{r}
+FractionNames %>%
+  ggplot() +
+  geom_line(aes(x=year, y=fraction_name)) +
+  ylim(0,0.7)
+```
+```{r}
+    labs(title = "Fraction has changed over the years", x = "Year", y = "Fractions of baby in top 100")
+```
+
+### Problem 13.3
+```{r}
+PopBabyName2 <-
+  BabyNames %>%
+  group_by(year,name) %>%
+  summarise(totalcount = sum(count)) %>%
+  mutate(popular = ifelse(rank(desc(totalcount))<=50, 1, 0)) %>%
+  mutate (unpopular = ifelse(rank(desc(totalcount))>1000, 1 , 0)) %>%
+  group_by(name) %>%
+  summarise(VeryPopular = max(popular), 
+            VeryUnpopular = max(unpopular)) %>%
+  filter(VeryUnpopular == 1, VeryPopular == 1)
+```
+
+```{r}
+PopBabyName2
+```
+
+## Chapter 16 Exercises
+
+### Problem 16.1
+1. 
+```{r}
+lubridate::mdy("April 30, 1777")
+```
+
+```{r}
+lubridate::mdy("July 9th, 2002") - 
+  lubridate::mdy("April 30, 1777") 
+```
+
+2.
+```{r}
+lubridate::mdy("06-23-1912")
+```
+
+```{r}
+lubridate::mdy("July 9th, 2002") - 
+  lubridate::mdy("06-23-1912")   
+```
+
+3.
+```{r}
+lubridate::dmy("3 March 1847")
+```
+
+```{r}
+lubridate::mdy("July 9th, 2002") -
+  lubridate::dmy("3 March 1847")
+```
+
+4. 
+```{r}
+lubridate::mdy_hm("Nov. 11th, 1918 at 11:00 am")  
+```
+
+```{r}
+lubridate::mdy_hm("July 9th, 2002 at 10:00am") -  
+  lubridate::mdy_hm("Nov. 11th, 1918 at 11:00 am")     
+```
+
+### Problem 16.2
+1.“42,659.30” - readr::parse_number()
+2.“17%” - readr::parse_number()
+3.“Nineteen” - neither
+4.“£100” - readr::parse_number()
+5.“9.8 m/seconds-square” - readr::parse_number()
+6.“9.8 m/s^2” - readr::parse_number()
+7.“6.62606957 × 10^-34 m2 kg / s” - readr::parse_number()
+8.“6.62606957e-34” - both
+9.“42.659,30” (A European style) - readr::parse_number()

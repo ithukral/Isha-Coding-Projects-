@@ -1,0 +1,61 @@
+---
+title: "Final Project: Initial Exploratory Data Analysis (EDA)"
+output: html_notebook
+---
+
+```{r}
+# clean up the RStudio environment 
+rm(list = ls())
+
+# load all packages here: `mosaic`, `tidyverse`, `lubridate`, and all others used
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+library(lubridate)
+library(ggplot2)
+library(readr)
+```
+```{r}
+ # Tip: Scroll right if browser settings cut off the URL
+cities_internet_prices_historical_24_10_2021 <- read_csv("cities_internet_prices_historical.24-10-2021.csv")
+    
+ # Tip: Scroll right if browser settings cut off the URL
+GDP <- read_csv("GDP.csv")
+```
+
+```{r}
+head(cities_internet_prices_historical_24_10_2021)
+```
+```{r}
+head(GDP)
+```
+```{r}
+summary(cities_internet_prices_historical_24_10_2021)
+```
+
+```{r}
+summary(GDP)
+```
+
+#Reasearch Guided Question
+
+Does the GDP of a country affect internet prices by either increasing or decreasing it?
+
+#EDA for Internet Prices Data
+
+##origin and purpose
+We have found this data on Kaggle initially, and it represents internet prices across the world ranging from 2010-2020. The data seems to originate from the City API project site, but unfortunately, we could not retrieve information regarding the data/ data collector's origins after further research. But from exploring the website https://city-api.io/en/ they seem to provide data about the worldwide related activity. They merge data sources to fit the client's pressing questions. Some of the features are paid, but our data related to worldwide internet prices is free. This data was collected to show a trend in internet prices over the years spanning the entire world to notice trends in fees and other related factors. Finally, the last time the data was updated was a month ago, making the tables relatively up to date and accurate. 
+
+##Key Variable: 
+City, Variable, Country, Internet price variable from 2010-2020. Between both of the tables a common variable to join the data frames in the country names. The names are strings while the prices are in USD and are represented as floats. 
+
+##Discover features that may influence modeling decisions:
+
+Potential outliers can come from countries whose internet prices are abnormally high or inexpensive (in other words, extreme). Apart from joining together the data frames, we have to change the formatting of all the Internet price variables from 2010-2020. Float variables currently have up to 5/ 6 decimal places, but to make our graphs easier to read, we need to convert this to a max of 2. Since the rows share different years, the only inherit/ influence is based on the geographic location determining the case prices in USD. Hence after analyzing the table, we only need to fix the float cases and group by country to join our tables later. 
+
+##Address research question
+
+Since we have not joined our data yet, we have not made an intuition. But from looking at this data set, I believe we have a lot of cases to work with if we group our countries and format our float to make analysis easier. 
+
+#EDA for GDP Data

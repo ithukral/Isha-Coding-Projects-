@@ -1,0 +1,158 @@
+---
+title: "STAT 184 Homework Exercises" 
+subtitle: "DataComputing Chapters 12"
+author: "Isha Thukral"
+output: html_notebook
+---
+
+## Assigned Exercises
+
+- DC Chapter 12 Exercises: 12.1, 12.2, 12.3, 12.4
+
+## Front Matter
+
+```{r}
+# clean up workspace environment
+rm(list = ls())
+
+# all packages used for the assignment
+library(mosaic)
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+```
+
+```{r}
+str(BabyNames)
+```
+
+
+## Chapter 12 Exercises
+
+### Problem 12.1
+
+1. sex
+
+
+2. 
+```{r}
+BothSexes <-
+  BabyNames %>%
+  pivot_wider(names_from = sex , values_from = count) %>%
+  filter(M > 5 | F > 5)
+
+GenderBalance <-
+  BothSexes %>%
+  mutate(genderBalance =  abs(log(F / M))) %>%
+  arrange(genderBalance)
+
+GenderBalance %>%
+  head(10)
+```
+10 Names: Erie, Sammie, Theo, Bird, Augustine, Tommie, Orrie, Verne, Jewel, Tracy
+
+3. 
+```{r}
+HundredBabies <-
+  BothSexes %>%
+  mutate(genderBalance =  abs(log(F / M))) %>%
+  filter(F > 100 , M > 100 ) %>%
+  arrange(genderBalance)
+
+HundredBabies %>%
+  head(10)
+```
+10 Names: Lavern, Marion, Dusty, Justice, Baby, Tegan, Ryley, Rian, Jaylin, Leslie
+
+4.
+```{r}
+LastingBaby <-
+  BothSexes %>%
+  mutate(added = F + M)%>%
+  filter(added > 100) %>%
+  group_by(name)%>%
+  mutate(lastingpopularity = count(year)) %>%
+  transmute(lastingpopularity = sum(lastingpopularity)) %>%
+  filter(lastingpopularity > 19) %>%
+  head(10)
+
+LastingBaby
+```
+
+
+5.
+```{r}
+GenderBalanceChange <-
+  BothSexes %>%
+  mutate(genderBalance =  abs(log(F / M))) %>%
+  group_by(name,year) %>%
+  filter(distinct(genderBalance))
+
+GenderBalanceChange
+```
+
+
+### Problem 12.2
+
+1. 
+Version 1: shows each of the cases representing a name of specific gender which is determined by the year. The Data from is narrow as the sex is under one column allowing use to include additional variables in this case nbabies which tell the viewer how many baby were born with the same name and sex in a specific year.
+
+Version 2: Wide form, each case is baby names count for each sex.
+
+Version 3: Wide form, each case is baby names count for years 1912 and 2012
+
+
+2. 
+VersionTwo <- 
+VersionOne %>% 
+pivot_wider(names_from = sex, values_from = nbabies)
+
+Version Two is wider.
+
+3.
+VersionOne <- 
+VersionThree %>% 
+pivot_longer(cols = c(1912, 2012), names_to = “year”, values_to = “nbabies”)
+
+Version Three is wider.
+
+4. 
+
+Version Two would be the best fit because, each gender is divided based on properly based upon each year.
+
+
+5.
+
+Version One should be converted to Version Two, as Version Two makes allows us to calculate ratios easier. The count of F and M can be totaled up to find the total count of M and F to put it in denominator for ratio.
+
+### Problem 12.3
+
+1. 
+
+A versus C: Table A seems wider as the column ‘country’ in table C has been converted to each variable in table A. versus value being assigned to each country in Table A.
+
+B versus C: Table B seems wider as the column ‘year’ in table C has been converted to each variable in table B. Wherease in Table B the value has been assigned to each year in .
+
+A versus B: In this case both are wider formats as both the tables have different variables and values. They both  have variables that have been converted from row.
+
+2. Table B would make it easier to find the changes in year 2000 to 2001. This can be done by adding  a column and showing the difference in year 2000 and 2001.
+
+FrameB %>% mutate(difference = Y2001 - Y2000)
+
+3. 
+I would most likely use table C to find sum of values for each continent for each year. I would first join ContinentData with table C, next group by continent and year, and finaly sum/add up all the values.
+
+### Problem 12.4
+
+1. 
+
+Using Wide format is better version as the objective is to compare side-by-side the before and after results for same type of subject. The narrow version, the variables are individual cases that make data frame longer and more difficult to compared as the all subjects before, and after would would be in one column and values in the other.
+The narrow data frame makes us compared 3 rows to find values as compared to wide wide version were we only look ast 1 case.
+
+2.
+
+#This would be the code to have three column/variables: subject, when, sbp 
+BP_wide %>% 
+pivot_longer(cols = c(before, after), names_to = “when”, values_to = “sbp”)
+

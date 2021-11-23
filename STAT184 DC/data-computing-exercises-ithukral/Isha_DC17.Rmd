@@ -1,0 +1,100 @@
+---
+title: "STAT 184 Homework Exercises" 
+subtitle: "DataComputing Chapters 17"
+author: "Isha Thukral"
+output: html_notebook
+---
+
+## Assigned Exercises
+
+- DC Chapter 17 Exercises: 17.1, 17.3, 17.4, 17.5, 17.7
+
+## Front Matter
+
+```{r}
+# clean up workspace environment
+rm(list = ls())
+
+# all packages used for the assignment
+library(mosaic)
+library(tidyverse)
+library(mosaicData)
+library(esquisse)
+library(dcData)
+library(lubridate)
+```
+
+## Chapter 17 Exercises
+
+### Problem 17.1
+```{r}
+BabyNames %>%
+  filter(sex == "M") %>% 
+  group_by(name) %>% 
+  summarise (total_count = sum(count)) %>% 
+  filter(grepl("[aeiou]$",name)) %>%
+  arrange(desc(total_count)) %>% 
+  head(10)
+```
+```{r}
+BabyNames %>%
+  filter(grepl(" ",name)) %>% 
+  group_by(name) %>% 
+  summarise (total_count = sum(count)) %>% 
+  arrange(desc(total_count)) %>% 
+  head(10)
+```
+```{r}
+BabyNames %>%
+  filter(grepl("joe$",name,ignore.case = TRUE)) %>% 
+  group_by(name) %>% 
+  summarise (total_count = sum(count)) %>% 
+  arrange(desc(total_count)) %>% 
+  head(10)
+```
+
+### Problem 17.3
+
+The following string resembles that of a US phone number. Breaking down the three subgroups split the first three digits represents the area code. The second and third subgroup similiarly follow the US phone number format as three and four respectively.Digits/numbers and spaces/dashes/period in between.
+
+### Problem 17.4
+
+1. The following strings will be ‘2’ to that match the pattern
+2. C[AOT] should be three possible strings, similarly when all of them added up would give us 61 different possible strings.
+3. Name of U.S.states  by their abbreviation.
+
+### Problem 17.5
+
+```{r}
+BibleNames <- 
+  readr::read_csv("https://mdbeckman.github.io/dcSupplement/data/BibleNames.csv")
+```
+
+```{r}
+BibleNames %>% 
+  filter(grepl("bar|dam|lory",name,ignore.case = TRUE)) %>%
+  group_by(name) %>% 
+  head(10)
+```
+```{r}
+BibleNames %>% 
+  filter(grepl("bar$|dam$|lory$",name,ignore.case = TRUE)) %>%
+  group_by(name) %>% 
+  head(10)
+```
+### Problem 17.7
+
+```{r}
+total_babies <-
+  BabyNames %>% 
+  inner_join(BibleNames) %>% 
+  group_by(name) %>% 
+  summarise(total_count = sum(count)) %>% 
+  arrange(desc(total_count)) %>% 
+  head(10)
+```
+
+```{r}
+total_babies
+```
+

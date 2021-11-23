@@ -1,0 +1,105 @@
+---
+title: "Activity: Scraping Nuclear Reactors"   
+author: "Isha Thukral"    
+date: "11/02/2021"   
+output: html_document    
+---
+
+```{r}
+library(rvest)
+library(tidyverse)
+library(lubridate)
+```
+
+
+```{r}
+page <- "http://en.wikipedia.org/wiki/List_of_nuclear_reactors"
+tableList <- page %>%
+  read_html() %>%
+  html_nodes(css = "table") %>%
+  html_table(fill = TRUE)
+
+head(tableList[[22]])
+```
+It is not tidy because the original data has the variables repeated as a case because it was not formatted when copied over. As well as reactor attributes being repeated. 
+
+```{r}
+Japan <- tableList[[22]]
+```
+
+
+```{r}
+# R reading alot of numeric numbers as character so we have to change that and make it appropriate
+names(Japan)[c(3,7)] <- c("type", "grossMW")
+
+Japan <-
+  Japan %>%
+  filter(row_number() > 1) %>%
+  rename(name = Name, 
+         reactor = `UnitNo.`,
+         model = Reactor,
+         status = Status, 
+         netMW = `Capacity in MW`,
+         construction = `Construction start`,
+         operation = `Commercial operation`, 
+         closure = Closure)
+```
+
+The data is tidy now as the first case variable repeats have been made and the reactor attributes are not being repeated. 
+
+```{r}
+Japan <-
+  Japan %>%
+  mutate(netMW = as.numeric(netMW), grossMW = as.numeric(grossMW)) %>%
+  mutate(construction = dmy(construction), operation = dmy(operation), closure = dmy(closure))
+```
+
+```{r}
+Japan %>%
+  ggplot(aes(x = construction, y = netMW)) +
+  geom_point(aes(color = type))
+```
+As construction increases so does netMW. From the graph it can be observed that BWR and PWR are the most popular types especiallt BWR after 2000's.
+
+```{r}
+China <- tableList[[10]]
+```
+
+```{r}
+names(China)[c(4, 7)] <- c("model", "grossMW") 
+China <-
+  China %>%
+  filter(row_number() > 1) %>%
+  rename(name = Name, 
+         reactor = UnitNo.,
+         type = Reactor,
+         status = Status, 
+         netMW = `Capacity in MW`,
+         construction = `Construction start`,
+         operation = `Commercial operation`, 
+         closure = Closure) %>%
+  mutate(netMW = as.numeric(netMW), grossMW = as.numeric(grossMW)) %>%
+  mutate(construction = dmy(construction), operation = dmy(operation))
+```
+
+```{r}
+China <-
+  China %>%
+  mutate(country = "China", closure = ymd(closure))
+
+Japan <-
+  Japan %>%
+  mutate(country = "Japan")
+
+Japan_China<-
+  rbind(China,Japan)
+```
+
+```{r}
+Japan %>% 
+  mutate(name_reactor = paste(name, reactor)) %>%
+  ggplot(aes(x = operation, y = name_reactor)) + 
+  geom_point(aes(y = name_reactor, x = closure, shape = status)) +
+  geom_segment(aes(y = name_reactor, yend = name_reactor, x = construction, xend = operation, color = type))
+```
+In the graph above the BWR and PWR reactors are in high amounts over the years. Some reactors have been inoperable that were made in early 1900s. Although joining the two counties makes it difficult to differentiate the reactor prefrence and amounts. 
