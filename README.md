@@ -1,2 +1,0 @@
-# DS440
-Capstone
